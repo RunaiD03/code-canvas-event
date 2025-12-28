@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SkySense Weather</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:Inter,system-ui;
+  background:url("galaxy.png") center/cover no-repeat fixed;
+  color:#fff;
+}
+
+/* ===== LAYOUT ===== */
+.wrapper{
+  display:grid;
+  grid-template-columns:90px 1fr;
+  max-width:1440px;
+  margin:0 auto;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  height:100vh;
+  background:#070b1a;
+  border-radius:20px;
+  margin:24px 12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px 0;
+  gap:22px;
+}
+.logo{
+  width:48px;height:48px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#8b5cf6,#4fc3f7);
+  display:grid;place-items:center;
+  font-weight:700;
+}
+.nav{
+  width:36px;height:36px;
+  background:#0f1534;
+  border-radius:10px;
+  display:grid;place-items:center;
+  margin:6px 0;
+}
+
+/* ===== PAGE ===== */
+.page{
+  padding:32px 24px 60px;
+}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:20px;
+}
+.user{
+  background:#0f1534;
+  padding:10px 16px;
+  border-radius:20px;
+  display:flex;gap:10px;align-items:center;
+}
+.avatar{
+  width:32px;height:32px;
+  border-radius:50%;
+  background:#8b5cf6;
+  display:grid;place-items:center;
+}
+
+/* ===== GRID ===== */
+.dashboard{
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:24px;
+}
+
+/* ===== CARD ===== */
+.card{
+  background:#070b1a;
+  border-radius:30px;
+  padding:28px;
+}
+
+/* ===== MAIN WEATHER ===== */
+.main-weather{
+  display:flex;
+  justify-content:space-between;
+  padding:22px 26px;
+}
+.location{color:#8b5cf6;font-size:14px}
+.day{font-size:36px;font-weight:600}
+.date{font-size:13px;color:#9aa1d4}
+.temp{font-size:72px;font-weight:700}
+.toggle{font-size:13px;color:#9aa1d4;cursor:pointer}
+.sub{font-size:14px;color:#9aa1d4}
+.icon{font-size:84px}
+
+/* ===== HIGHLIGHT ===== */
+.highlight{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+.h-card{
+  background:#0f1534;
+  border-radius:20px;
+  padding:18px;
+  font-size:13px;
+  color:#9aa1d4;
+}
+.h-card strong{
+  display:block;
+  margin-top:8px;
+  font-size:20px;
+  color:#fff;
+}
+
+/* Wind compass */
+.compass svg{width:90px;height:90px;margin:auto;display:block}
+.compass circle{fill:none;stroke:#1f2a4d;stroke-width:4}
+.compass line{
+  stroke:#facc15;
+  stroke-width:4;
+  stroke-linecap:round;
+  transform-origin:50% 50%;
+}
+
+/* Pressure */
+.pressure svg{width:90px;height:90px;margin:auto;display:block}
+.pressure .bg{stroke:#1f2a4d;stroke-width:8;fill:none}
+.pressure .fg{
+  stroke:#facc15;
+  stroke-width:8;
+  fill:none;
+  stroke-dasharray:264;
+  stroke-dashoffset:90;
+  transform:rotate(-90deg);
+  transform-origin:50% 50%;
+}
+
+/* AQI */
+.aqi-bar{
+  height:6px;
+  border-radius:6px;
+  background:linear-gradient(90deg,#22c55e,#facc15,#ef4444);
+  margin-top:10px;
+}
+
+/* ===== LOWER ===== */
+.lower{
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:24px;
+  margin-top:24px;
+}
+.hours{display:flex;gap:12px;margin-top:16px}
+.hour{
+  width:64px;height:96px;
+  background:#0f1534;
+  border-radius:14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+}
+
+/* Tomorrow */
+.tomorrow{
+  margin:20px 0;
+  background:#0f1534;
+  border-radius:18px;
+  padding:16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* Sun */
+.sun-info{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+.sun-box{
+  background:#0f1534;
+  border-radius:18px;
+  padding:16px;
+  text-align:center;
+}
+
+/* Map */
+.card.map{position:relative}
+.map iframe{
+  width:100%;
+  height:260px;
+  border:none;
+  border-radius:20px;
+}
+.map-marker{
+  position:absolute;
+  bottom:24px;
+  left:24px;
+  background:#0f1534;
+  padding:10px 14px;
+  border-radius:14px;
+  font-size:14px;
+}
+
+@media(max-width:1100px){
+  .dashboard,.lower{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <aside class="sidebar">
+    <div class="logo">⚡</div>
+    <div class="nav">🏠</div>
+    <div class="nav">📊</div>
+    <div class="nav">📍</div>
+    <div class="nav">🗂</div>
+    <div class="nav">⚙️</div>
+  </aside>
+
+  <div class="page">
+
+    <div class="topbar">
+      <div class="user">
+        <div class="avatar">👤</div>
+        User Name
+      </div>
+    </div>
+
+    <div class="dashboard">
+
+      <div class="card main-weather">
+        <div>
+          <div class="location">📍 Kolkata</div>
+          <div class="day" id="day"></div>
+          <div class="date" id="date"></div>
+          <div class="temp"><span id="temp"></span>°<span id="unit">C</span></div>
+          <div class="toggle" onclick="toggleUnit()">C ↔ F</div>
+          <div class="sub" id="hiLo"></div>
+        </div>
+        <div style="text-align:center">
+          <div class="icon">🌤️</div>
+          <div class="sub" id="feels"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:16px">Today Highlight</h3>
+        <div class="highlight">
+          <div class="h-card compass">
+            Wind
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45"/>
+              <line id="needle" x1="50" y1="50" x2="50" y2="12"/>
+            </svg>
+            <strong id="wind"></strong>
+          </div>
+
+          <div class="h-card">Rainfall <strong id="rain"></strong></div>
+
+          <div class="h-card pressure">
+            Pressure
+            <svg viewBox="0 0 100 100">
+              <circle class="bg" cx="50" cy="50" r="42"/>
+              <circle class="fg" cx="50" cy="50" r="42"/>
+            </svg>
+            <strong id="pressure"></strong>
+          </div>
+
+          <div class="h-card">Air Quality <strong>3 – Low Health Risk</strong><div class="aqi-bar"></div></div>
+
+          <div class="h-card">Visibility <strong id="visibility"></strong></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="lower">
+
+      <div class="card">
+        <h3>Today / Week</h3>
+        <div class="hours" id="hours"></div>
+
+        <div class="tomorrow">Tomorrow <strong id="tomorrow"></strong></div>
+
+        <div class="sun-info">
+          <div class="sun-box">Sunrise<br><strong id="sunrise"></strong></div>
+          <div class="sun-box">Sunset<br><strong id="sunset"></strong></div>
+          <div class="sun-box">Length<br><strong id="length"></strong></div>
+        </div>
+      </div>
+
+      <div class="card map">
+        <h3 style="margin-bottom:12px">Temperature</h3>
+        <div class="map-marker">📍 Kolkata <span id="mapTemp">21°C</span></div>
+        <iframe id="map"></iframe>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API="80bd0b305a67a8d43e8ae3ea95fffef9";
+const CITY="Kolkata";
+
+let isMetric=true;
+
+function toggleUnit(){isMetric=!isMetric;}
+
+async function load(){
+  const w=await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY}&units=metric&appid=${API}`).then(r=>r.json());
+  const f=await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${CITY}&units=metric&appid=${API}`).then(r=>r.json());
+
+  day.textContent=new Date().toLocaleDateString("en-US",{weekday:"long"});
+  date.textContent=new Date().toLocaleDateString("en-US",{day:"2-digit",month:"short",year:"numeric"});
+
+  temp.textContent=Math.round(w.main.temp);
+  hiLo.textContent=`High: ${Math.round(w.main.temp_max)} Low: ${Math.round(w.main.temp_min)}`;
+  feels.textContent=`Feels like ${Math.round(w.main.feels_like)}°`;
+
+  wind.textContent=w.wind.speed+" km/h";
+  pressure.textContent=w.main.pressure+" hPa";
+  visibility.textContent=(w.visibility/1000)+" km";
+  rain.textContent=(w.rain?.["1h"]||0)+" mm";
+  needle.style.transform=`rotate(${w.wind.deg||0}deg)`;
+
+  sunrise.textContent=new Date(w.sys.sunrise*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  sunset.textContent=new Date(w.sys.sunset*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); document.getElementById("length").textContent = "10h 23m";
+  hours.innerHTML="";
+  f.list.slice(0,7).forEach(h=>{
+    const d=new Date(h.dt*1000);
+    let hr=d.getHours();
+    const ampm=hr>=12?"PM":"AM";
+    hr=hr%12||12;
+
+    hours.innerHTML+=`
+      <div class="hour">
+        ${hr} ${ampm}<br>
+        🌤️<br>
+        ${Math.round(h.main.temp)}°
+      </div>`;
+  });
+
+  tomorrow.textContent=Math.round(f.list[8].main.temp)+"°";
+  map.src=`https://tile.openweathermap.org/map/temp_new/5/17/11.png?appid=${API}`;
+}
+
+load();
+</script>
+
+</body>
+</html>
